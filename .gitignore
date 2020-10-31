@@ -148,4 +148,5 @@ cython_debug/
 
 # Project custom files
 login_data.py
-*_session.pk
+temp
+output.txt

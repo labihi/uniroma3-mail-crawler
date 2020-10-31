@@ -13,12 +13,17 @@ import pickle
 import requests
 from bs4 import BeautifulSoup
 
-from log import logger
-
-SESSION_FILE = "session.pk"
+from backend.log import logger
 
 
-def _importCookies(session, cookies: Dict[str, str]):
+TEMP = 'temp/'
+if not os.path.isdir(TEMP):
+    os.mkdir(TEMP)
+
+SESSION_FILE = f"{TEMP}d3p4r7m3n7_session.pk"
+
+
+def _import_cookies(session, cookies: Dict[str, str]):
     for cookie in cookies:
         if 'httpOnly' in cookie:
             cookie['rest'] = {'httpOnly': cookie.pop('httpOnly')}
@@ -32,7 +37,7 @@ def _importCookies(session, cookies: Dict[str, str]):
 
 
 def get_logged_session(department):
-    session_file = f"{department}_{SESSION_FILE}"
+    session_file = SESSION_FILE.replace("d3p4r7m3n7", department)
     session = requests.Session()
 
     # if there's an already serialized session then i load it
@@ -47,7 +52,7 @@ def get_logged_session(department):
         logger.warning("Trying automated login...")
         try:
             cookies = _automated_login(department=department)
-            _importCookies(session, cookies)
+            _import_cookies(session, cookies)
         except Exception as ex:
             logger.error("Automated login failed")
             logger.debug(ex)
@@ -59,7 +64,7 @@ def get_logged_session(department):
         logger.warning("Trying interactive login...")
         try:
             cookies = _interactive_login(department=department)
-            _importCookies(session, cookies)
+            _import_cookies(session, cookies)
         except Exception as ex:
             logger.error("Interactive login failed")
             logger.debug(ex)
