@@ -39,14 +39,11 @@ def get_logged_session(department):
     if os.path.exists(session_file):
         session = pickle.load(open(session_file, 'rb'))
     else:
-        logger.warning("No session saved, login is required")
+        logger.info("No session saved, login is required")
 
     # region automated_login
     logged_in = _is_logged_in(session, department)
-    if _is_logged_in(session, department):
-        logger.warning("Session is logged in!")
-    else:
-        logger.warning("Session is not logged in!")
+    if not logged_in:
         logger.warning("Trying automated login...")
         try:
             cookies = _automated_login(department=department)

@@ -1,4 +1,5 @@
-import logging
+import logging, coloredlogs
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logging.basicConfig(level="INFO")
+coloredlogs.install(level='INFO', logger=logger, fmt='%(message)s')
