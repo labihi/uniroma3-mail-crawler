@@ -96,7 +96,8 @@ def write_mail_to_file(department):
         for uid in mail_names:
             print(uid)
             mail, name = mail_names[uid]
-            test = f"{uid};{mail};{name}\n"
-            fout.write(test.encode('utf8'))
+            if "@stud." in mail:
+                test = f"{uid};{mail};{name}\n"
+                fout.write(test.encode('utf8'))
 
     logger.info(f"All data written to: {OUTPUT_FILE}")
