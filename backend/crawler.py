@@ -16,10 +16,14 @@ OUTPUT_FILE = "output.csv"
 
 
 def find_mails(department, session: requests.Session = None) -> Dict[str, Tuple[str,str]]:
+    departmentUrl = f"https://{department}.el.uniroma3.it/"
+    if("://" in department):
+        departmentUrl = department
+
     output = dict()
 
     if session is None:
-        session = get_logged_session(department)
+        session = get_logged_session(departmentUrl)
 
     cache = {}
     if os.path.isfile(CACHE):
@@ -29,7 +33,7 @@ def find_mails(department, session: requests.Session = None) -> Dict[str, Tuple[
         logger.warning("CACHE not found.")
 
     logger.info("visiting the homepage")
-    soup = BeautifulSoup(session.get(f"https://{department}.el.uniroma3.it/").text, 'html.parser')
+    soup = BeautifulSoup(session.get(departmentUrl).text, 'html.parser')
 
     # finding the courses links
     courses = soup.select('.list-group a.list-group-item-action[data-parent-key="mycourses"]')
@@ -61,7 +65,7 @@ def find_mails(department, session: requests.Session = None) -> Dict[str, Tuple[
         else:
             logger.info(f"Visiting user {index + 1}/{users_len} ({uid})")
             # visiting the page
-            link = f"https://{department}.el.uniroma3.it/user/profile.php?id={uid}"
+            link = f"{departmentUrl}user/profile.php?id={uid}"
             soup = BeautifulSoup(session.get(link).text, 'html.parser')
             # finding the mail
             mail = soup.select_one('.profile_tree a[href*="mailto"]')
@@ -82,9 +86,9 @@ def find_mails(department, session: requests.Session = None) -> Dict[str, Tuple[
     return output
 
 
-def write_mail_to_file():
+def write_mail_to_file(department):
     # finding mails
-    mail_names = find_mails("ingegneria")
+    mail_names = find_mails(department)
 
     # writing to file
     with open(OUTPUT_FILE, 'wb+') as fout:

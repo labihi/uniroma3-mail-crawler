@@ -1,3 +1,4 @@
+import re
 import sys
 from typing import Dict
 
@@ -38,8 +39,8 @@ def _import_cookies(session, cookies: Dict[str, str]):
     # pickle.dump(session)
 
 
-def get_logged_session(department):
-    session_file = SESSION_FILE.replace("d3p4r7m3n7", department)
+def get_logged_session(departmentUrl):
+    session_file = SESSION_FILE.replace("d3p4r7m3n7", "".join(re.findall(r"[a-z]*", departmentUrl)))
     session = requests.Session()
 
     # if there's an already serialized session then i load it
@@ -49,11 +50,11 @@ def get_logged_session(department):
         logger.info("No session saved, login is required")
 
     # region automated_login
-    logged_in = _is_logged_in(session, department)
+    logged_in = _is_logged_in(session, departmentUrl)
     if not logged_in:
         logger.warning("Trying automated login...")
         try:
-            cookies = _automated_login(department=department)
+            cookies = _automated_login(departmentUrl=departmentUrl)
             _import_cookies(session, cookies)
         except Exception as ex:
             logger.error("Automated login failed")
@@ -61,18 +62,18 @@ def get_logged_session(department):
     # endregion
 
     # region interactive_login
-    logged_in = _is_logged_in(session, department)
+    logged_in = _is_logged_in(session, departmentUrl)
     if not logged_in:
         logger.warning("Trying interactive login...")
         try:
-            cookies = _interactive_login(department=department)
+            cookies = _interactive_login(departmentUrl=departmentUrl)
             _import_cookies(session, cookies)
         except Exception as ex:
             logger.error("Interactive login failed")
             logger.debug(ex)
     # endregion
 
-    if _is_logged_in(session, department):
+    if _is_logged_in(session, departmentUrl):
         logger.warning("Login Status: OK!")
     else:
         logger.error("Couldn't log in in no way, shutting down");
@@ -82,9 +83,9 @@ def get_logged_session(department):
     return session
 
 
-def _is_logged_in(session, department):
+def _is_logged_in(session, departmentUrl):
     # checking if this session is logged in
-    response = session.get(f"https://{department}.el.uniroma3.it/")
+    response = session.get(departmentUrl)
     soup = BeautifulSoup(response.text, 'html.parser')
     login = soup.select(".login")
     return len(login) == 0
@@ -121,13 +122,13 @@ def _get_driver():
         raise Exception("Impossible to connect to a browser, download google chrome.")
 
 
-def _automated_login(driver=None, department="ingegneria"):
+def _automated_login(departmentUrl, driver=None):
     import login_data
 
     if driver is None:
         driver = _get_driver()
 
-    driver.get(f"https://{department}.el.uniroma3.it/login/index.php")
+    driver.get(f"{departmentUrl}/login/index.php")
 
     # writing mail
     mail = driver.find_element_by_css_selector("input[type=email]")
@@ -152,11 +153,11 @@ def _automated_login(driver=None, department="ingegneria"):
     return driver.get_cookies()
 
 
-def _interactive_login(driver=None, department="ingegneria"):
+def _interactive_login(departmentUrl, driver=None):
     if driver is None:
         driver = _get_driver()
 
-    driver.get(f"https://{department}.el.uniroma3.it/login/index.php")
+    driver.get(f"{departmentUrl}/login/index.php")
     current_url = driver.current_url
 
     # waiting for the url to change after the login

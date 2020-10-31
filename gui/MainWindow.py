@@ -74,7 +74,7 @@ class MainWindow(Tk):
     def run(self):
         self.find_mail_button["state"] = "disabled"
 
-        write_mail_to_file()
+        write_mail_to_file(DEPARTMENTS[self.department_combobox.get()])
 
         messagebox.showinfo("Finito", "Mail salvate nel file output.csv")
 
