@@ -51,7 +51,7 @@ def find_mails(department, session: requests.Session = None):
         # printing the new ones to console
         logger.debug(mails.difference(output))
         # adding them to the output
-        output.union(mails)
+        output.update(mails)
 
     # filtering duplicates before returning
     return set(output)
