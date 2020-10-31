@@ -95,25 +95,28 @@ def _get_driver():
     driver = None
 
     # trying with google chrome
-    try:
-        chromedriver_autoinstaller.install()
-        driver = webdriver.Chrome()
-    except:
-        pass
+    if driver is None:
+        try:
+            chromedriver_autoinstaller.install()
+            driver = webdriver.Chrome()
+        except:
+            pass
 
     # trying with edge
-    try:
-        edgedriver_autoinstaller.install()
-        driver = webdriver.Edge(executable_path="msedgedriver.exe")
-    except:
-        pass
+    if driver is None:
+        try:
+            edgedriver_autoinstaller.install()
+            driver = webdriver.Edge(executable_path="msedgedriver.exe")
+        except:
+            pass
 
     # trying with firefox
-    try:
-        # TODO: firefoxdriver_autoinstaller.install(True);
-        driver = webdriver.Firefox(executable_path="msedgedriver.exe")
-    except:
-        pass
+    if driver is None:
+        try:
+            # TODO: firefoxdriver_autoinstaller.install(True);
+            driver = webdriver.Firefox(executable_path="msedgedriver.exe")
+        except:
+            pass
 
     if (driver):
         driver.implicitly_wait(5)
