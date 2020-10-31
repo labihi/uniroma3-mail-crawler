@@ -8,12 +8,14 @@ from bs4 import BeautifulSoup
 from backend.log import logger
 from backend.login import TEMP, get_logged_session
 
-from typing import List
+from typing import List, Tuple, Dict
 
 CACHE = f"{TEMP}cache.json"
+OUTPUT_FILE = "output.csv"
 
 
-def find_mails(department, session: requests.Session = None) -> List[str]:
+
+def find_mails(department, session: requests.Session = None) -> Dict[str, Tuple[str,str]]:
     output = dict()
 
     if session is None:
@@ -70,11 +72,27 @@ def find_mails(department, session: requests.Session = None) -> List[str]:
             # printing the new ones to console
             logger.debug(mail)
             # adding them to the output
-            output[uid] = mail
+            output[uid] = (mail, soup.select_one("h1").text)
 
     cache.update(output)
     json.dump(cache, open(CACHE, 'w'))
     logger.warning("CACHE updated")
 
     # filtering duplicates before returning
-    return set(output.values())
+    return output
+
+
+def write_mail_to_file():
+    # finding mails
+    mail_names = find_mails("ingegneria")
+
+    # writing to file
+    with open(OUTPUT_FILE, 'wb+') as fout:
+        fout.write("ID;Nome;Email\n".encode('utf8'))
+        for uid in mail_names:
+            print(uid)
+            mail, name = mail_names[uid]
+            test = f"{uid};{mail};{name}\n"
+            fout.write(test.encode('utf8'))
+
+    logger.info(f"All data written to: {OUTPUT_FILE}")

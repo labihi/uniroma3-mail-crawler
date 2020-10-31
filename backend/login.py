@@ -1,6 +1,7 @@
 import sys
 from typing import Dict
 
+import edgedriver_autoinstaller
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
@@ -15,6 +16,7 @@ from bs4 import BeautifulSoup
 
 from backend.log import logger
 
+import chromedriver_autoinstaller
 
 TEMP = 'temp/'
 if not os.path.isdir(TEMP):
@@ -89,11 +91,34 @@ def _is_logged_in(session, department):
 
 
 def _get_driver():
-    # TODO: implement a cool way to find the used browser and the driver for that browser
+    driver = None
 
-    driver = webdriver.Edge(executable_path="msedgedriver.exe")
-    driver.implicitly_wait(5)
-    return driver
+    # trying with google chrome
+    try:
+        chromedriver_autoinstaller.install()
+        driver = webdriver.Chrome()
+    except:
+        pass
+
+    # trying with edge
+    try:
+        edgedriver_autoinstaller.install()
+        driver = webdriver.Edge(executable_path="msedgedriver.exe")
+    except:
+        pass
+
+    # trying with firefox
+    try:
+        # TODO: firefoxdriver_autoinstaller.install(True);
+        driver = webdriver.Firefox(executable_path="msedgedriver.exe")
+    except:
+        pass
+
+    if (driver):
+        driver.implicitly_wait(5)
+        return driver
+    else:
+        raise Exception("Impossible to connect to a browser, download google chrome.")
 
 
 def _automated_login(driver=None, department="ingegneria"):

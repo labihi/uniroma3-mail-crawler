@@ -145,8 +145,7 @@ cython_debug/
 .vscode
 
 
-
 # Project custom files
 login_data.py
 temp
-output.txt
+output.csv
