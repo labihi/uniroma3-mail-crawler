@@ -5,6 +5,7 @@ from typing import Dict
 import edgedriver_autoinstaller
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.support.wait import WebDriverWait
 
 from selenium.webdriver.support import expected_conditions as EC
@@ -106,7 +107,11 @@ def _get_driver():
     if driver is None:
         try:
             edgedriver_autoinstaller.install()
-            driver = webdriver.Edge(executable_path="msedgedriver.exe")
+
+            driver_options = EdgeOptions()
+            driver_options.add_experimental_option("excludeSwitches", ["enable-logging"])
+
+            driver = webdriver.Edge(executable_path="msedgedriver.exe", options=driver_options)
         except:
             pass
 
